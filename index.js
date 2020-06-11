@@ -1,7 +1,7 @@
 const server = require('express')()
 const http = require('http').createServer(server)
 const io = require('socket.io')(http)
-const PORT = 3000
+const PORT = process.env.PORT || 3000
 
 let clients = 0
 
