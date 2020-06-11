@@ -10,14 +10,12 @@ io.sockets.setMaxListeners(11)
 io.on('connection', socket => {
 
     socket.on('NewClient', () => {
-        console.log(clients)
         if(clients < 2){
-                socket.broadcast.emit('CreatePeer')
-                clients++
-                console.log(`New client esgtablished @ client: ${clients}`)
-        }
-        else{
-            socket.broadcast.emit('SessionActive')
+            socket.broadcast.emit('CreatePeer')
+            clients++
+            console.log(`New client established @ client: ${clients}`)
+        }else{
+            socket.emit('SessionActive')
         }
     })
 
@@ -33,6 +31,7 @@ io.on('connection', socket => {
 function Disconnect(){
     if(clients>0) clients--
     this.broadcast.emit('Disconnect')
+    console.log('User disconnected')
 }
 
 function SendOffer(offer) {
@@ -41,9 +40,8 @@ function SendOffer(offer) {
 }
 
 function SendAnswer(data) {
-    console.log(data)
     console.log('sending answer')
     this.broadcast.emit('BackendAnswer', data)
 }
 
-http.listen(PORT, () => console.log('Up and running'))
+http.listen(PORT, () => console.log('Up and running you bitch'))
