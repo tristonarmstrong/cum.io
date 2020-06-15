@@ -5,9 +5,16 @@ const PORT = process.env.PORT || 3000
 
 let clients = 0
 
+server.get('/', (req, res) => res.send('Cant get, you dumb shit!'))
+
 io.sockets.setMaxListeners(11)
 
 io.on('connection', socket => {
+
+    socket.on('message', (message) => {
+        console.log('message received: ', message)
+        socket.broadcast.emit('message', message)
+    })
 
     socket.on('NewClient', () => {
         if(clients < 2){
@@ -22,10 +29,6 @@ io.on('connection', socket => {
     socket.on('Offer', SendOffer)
     socket.on('Answer', SendAnswer)
     socket.on('disconnect', Disconnect)
-    socket.on('stream', stream => {
-        console.log('broadcasting stream')
-        socket.broadcast.emit('stream', stream)
-    })
 })
 
 function Disconnect(){
