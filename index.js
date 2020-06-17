@@ -1,9 +1,8 @@
 const server = require('express')()
 const http = require('http').createServer(server)
 const io = require('socket.io')(http)
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 5000
 const cors = require('cors')
-const { Socket } = require('dgram')
 
 server.use(cors())
 
@@ -25,25 +24,24 @@ function createRoom(id){
     .of(id)
     .on('connection', socket => {
         console.log('connected')
-        socket.clients = 0
 
-        socket.on('message', (message) => {
-            console.log('message received: ', message)
+        // MESSAGE CONNECTION
+        socket.on('message', message => {
+            console.log('message transmitted: ', message)
             socket.broadcast.emit('message', message)
         })
 
+        // NEW CLIENT CONNECTION
         socket.on('NewClient', () => {
-            if (socket.clients < 2) {
-                socket.broadcast.emit('CreatePeer')
-                socket.clients = socket.clients + 1
-                console.log(`New client established @ client: ${socket.clients}`)
-            } else {
-                socket.emit('SessionActive')
-            }
+            socket.broadcast.emit('CreatePeer')
+            console.log(`New client established @ client: ${socket.client.id}`)
         })
 
-        socket.on('Offer', (offer) => SendOffer(socket, offer))
-        socket.on('Answer', (data) => SendAnswer(socket, data))
+        // OFFER FROM FRONT
+        socket.on('Offer', offer => SendOffer(socket, offer))
+        // SEND ANSWER TO FRONT
+        socket.on('Answer', data => SendAnswer(socket, data))
+        // SEND DISCONNECT TO FRONT
         socket.on('disconnect', () => Disconnect(socket))
     })
     return room
